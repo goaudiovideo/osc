@@ -7,13 +7,13 @@ package osc
 
 // Message creates an OSC message and returns it as a byte slice.
 func Message(addr, typeTag string, args ...interface{}) ([]byte, error) {
-	// Add OSC Address Pattern to message.
+	// Add OSC Address Pattern to message and appropriate number of pad bytes.
 	msg := []byte(addr)
 	msg = append(msg, 0)
 	msg = addPadBytes(msg)
 
 	// Add OSC Type Tag to message or add a comma and nulls if there aren't any
-	// type tags provided.
+	// type tags provided and the appropriate number of pad bytes.
 	msg = append(msg, []byte(",")...)
 	if typeTag != "" {
 		msg = append(msg, typeTag...)
@@ -25,8 +25,9 @@ func Message(addr, typeTag string, args ...interface{}) ([]byte, error) {
 // addPadBytes adds the proper number of pad bytes.
 func addPadBytes(msg []byte) []byte {
 	n := numPadBytes(len(msg))
-	for i := 0; i < n; i++ {
-		msg = append(msg, 0)
+	if n > 0 {
+		padBytes := make([]byte, n)
+		msg = append(msg, padBytes...)
 	}
 	return msg
 }

@@ -46,6 +46,10 @@ func TestNumPadBytes(t *testing.T) {
 		{10, 2},
 		{11, 1},
 		{12, 0},
+		{13, 3},
+		{14, 2},
+		{15, 1},
+		{16, 0},
 	}
 	for _, test := range tests {
 		if got := numPadBytes(test.given); got != test.want {
