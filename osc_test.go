@@ -8,32 +8,38 @@ package osc
 import "testing"
 
 func TestGoodMessages(t *testing.T) {
+	var args1 []interface{}
+	args1 = append(args1, "name")
 	var tests = []struct {
+		name    string
 		addr    string
 		typeTag string
 		args    []interface{}
 		want    []byte
 	}{
-		{"/info", "", nil, []byte("/info\x00\x00\x00,\x00\x00\x00")},
-		{"/ch/01/config/name", "s", nil, []byte("/ch/01/config/name\x00\x00,s\x00\x00")},
-		{"/ch/01/config/name", "s", nil, []byte("/ch/01/config/name\x00\x00,s\x00\x00")},
+		{"info", "/info", "", nil, []byte("/info\x00\x00\x00,\x00\x00\x00")},
+		{"name1", "/ch/01/config/name", "s", nil, []byte("/ch/01/config/name\x00\x00,s\x00\x00")},
+		{"name2", "/ch/01/config/name", "s", args1, []byte("/ch/01/config/name\x00\x00,s\x00\x00name\x00\x00\x00\x00")},
 	}
 	for _, test := range tests {
-		got, err := Message(test.addr, test.typeTag, test.args)
-		if err != nil {
-			t.Errorf("Got unexpected error: %s", err)
-		}
-		if string(got) != string(test.want) {
-			t.Errorf("got = %q / want = %q", got, test.want)
-		}
+		t.Run(test.name, func(t *testing.T) {
+			got, err := Message(test.addr, test.typeTag, test.args...)
+			if err != nil {
+				t.Errorf("Got unexpected error: %s", err)
+			}
+			if string(got) != string(test.want) {
+				t.Errorf("got = %q / want = %q", got, test.want)
+			}
+		})
 	}
 }
 
-func TestNumPadBytes(t *testing.T) {
+func TestNumZeroBytes(t *testing.T) {
 	var tests = []struct {
 		given int
 		want  int
 	}{
+		{0, 0},
 		{1, 3},
 		{2, 2},
 		{3, 1},
@@ -52,7 +58,7 @@ func TestNumPadBytes(t *testing.T) {
 		{16, 0},
 	}
 	for _, test := range tests {
-		if got := numPadBytes(test.given); got != test.want {
+		if got := numZeroBytes(test.given); got != test.want {
 			t.Errorf("given = %d / got = %d / want %d", test.given, got, test.want)
 		}
 	}
