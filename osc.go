@@ -5,6 +5,11 @@
 
 package osc
 
+import (
+	"bytes"
+	"encoding/binary"
+)
+
 // Message creates an OSC message and returns it as a byte slice.
 func Message(addr, typeTag string, args ...interface{}) ([]byte, error) {
 	// Add OSC Address Pattern to message and appropriate number of zero bytes.
@@ -25,8 +30,14 @@ func Message(addr, typeTag string, args ...interface{}) ([]byte, error) {
 		switch arg := arg.(type) {
 		case string:
 			msg = append(msg, arg...)
+			msg = append(msg, 0)
+		case float32:
+			b, err := encodeFloat32(arg)
+			if err != nil {
+				return nil, err
+			}
+			msg = append(msg, b...)
 		}
-		msg = append(msg, 0)
 		msg = addZeroBytes(msg)
 	}
 
@@ -47,4 +58,14 @@ func addZeroBytes(msg []byte) []byte {
 // order to have a byte count that's a multiple of four.
 func numZeroBytes(l int) int {
 	return (4 - (l % 4)) % 4
+}
+
+// encodeFloat32 converts a float32 number into the big-endian binary byte
+// slice required by an OSC message.
+func encodeFloat32(f float32) ([]byte, error) {
+	var buf bytes.Buffer
+	if err := binary.Write(&buf, binary.BigEndian, f); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }
