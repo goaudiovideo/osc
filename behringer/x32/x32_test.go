@@ -60,3 +60,29 @@ func TestUnmuteChannel(t *testing.T) {
 	}
 
 }
+
+func TestMuteMain(t *testing.T) {
+	want := "/main/st/mix/on\x00,i\x00\x00\x00\x00\x00\x00"
+	var b bytes.Buffer
+	mixer := NewMixer(&b)
+	if err := mixer.MuteMain(); err != nil {
+		t.Errorf("error muting main: %s", err)
+	}
+	got := b.String()
+	if got != want {
+		t.Errorf("\t got = %x\n\t\twant = %x", got, want)
+	}
+}
+
+func TestUnmuteMain(t *testing.T) {
+	want := "/main/st/mix/on\x00,i\x00\x00\x00\x00\x00\x01"
+	var b bytes.Buffer
+	mixer := NewMixer(&b)
+	if err := mixer.UnmuteMain(); err != nil {
+		t.Errorf("error unmuting main: %s", err)
+	}
+	got := b.String()
+	if got != want {
+		t.Errorf("\t got = %x\n\t\twant = %x", got, want)
+	}
+}

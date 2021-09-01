@@ -34,6 +34,26 @@ func (m Mixer) Write(p []byte) (int, error) {
 	return m.w.Write(p)
 }
 
+// MuteMain mutes the main channel.
+func (m Mixer) MuteMain() error {
+	msg, err := osc.Message("/main/st/mix/on", "i", 0)
+	if err != nil {
+		return err
+	}
+	_, err = m.Write(msg)
+	return err
+}
+
+// UnmuteMain unmutes the main channel.
+func (m Mixer) UnmuteMain() error {
+	msg, err := osc.Message("/main/st/mix/on", "i", 1)
+	if err != nil {
+		return err
+	}
+	_, err = m.Write(msg)
+	return err
+}
+
 // MuteChannel mutes the given channel.
 func (m Mixer) MuteChannel(ch int) error {
 	addr := fmt.Sprintf("/ch/%02d/mix/on", ch)
