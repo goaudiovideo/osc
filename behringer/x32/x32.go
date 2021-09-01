@@ -71,6 +71,15 @@ func (m Mixer) NameChannel(ch int, name string) error {
 	return m.WriteMessage(addr, "s", name)
 }
 
+// SetChannelIcon sets the icon for the given channel.
+func (m Mixer) SetChannelIcon(ch int, icon Icon) error {
+	if !validChannelRange(ch) {
+		return fmt.Errorf("channel %d out of range 1-32", ch)
+	}
+	addr := fmt.Sprintf("/ch/%02d/config/icon", ch)
+	return m.WriteMessage(addr, "i", int(icon))
+}
+
 // UnmuteChannel unmutes the given channel.
 func (m Mixer) UnmuteChannel(ch int) error {
 	if !validChannelRange(ch) {

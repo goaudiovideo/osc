@@ -44,7 +44,6 @@ func TestMuteChannel(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestUnmuteChannel(t *testing.T) {
@@ -142,5 +141,41 @@ func TestNameChannel(t *testing.T) {
 			}
 		})
 	}
+}
 
+func TestSetChannelIcon(t *testing.T) {
+	var tests = []struct {
+		channel     int
+		icon        Icon
+		want        string
+		expectError bool
+	}{
+		{0, BassDrum, "/ch/00/config/icon\x00\x00,i\x00\x00\x00\x00\x00\x03", true},
+		{1, BassDrum, "/ch/01/config/icon\x00\x00,i\x00\x00\x00\x00\x00\x03", false},
+		{1, BassDrum, "/ch/01/config/icon\x00\x00,i\x00\x00\x00\x00\x00\x03", false},
+		{31, Laptop, "/ch/31/config/icon\x00\x00,i\x00\x00\x00\x00\x00\x3e", false},
+		{32, Cymbal, "/ch/32/config/icon\x00\x00,i\x00\x00\x00\x00\x00\x0a", false},
+		{33, Cymbal, "/ch/32/config/icon\x00\x00,i\x00\x00\x00\x00\x00\x0a", true},
+	}
+	for _, test := range tests {
+		name := fmt.Sprintf("ch%02d_%s", test.channel, test.icon)
+		t.Run(name, func(t *testing.T) {
+			var b bytes.Buffer
+			mixer := NewMixer(&b)
+			err := mixer.SetChannelIcon(test.channel, test.icon)
+			if test.expectError {
+				if err == nil {
+					t.Errorf("expected error setting icon for channel %d", test.channel)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("error setting icon for channel %d: %s", test.channel, err)
+				}
+				got := b.String()
+				if got != test.want {
+					t.Errorf("\t got = %x\n\t\t\twant = %x", got, test.want)
+				}
+			}
+		})
+	}
 }
