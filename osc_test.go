@@ -18,6 +18,8 @@ func TestGoodMessages(t *testing.T) {
 	args2 = append(args2, float32(0.4648))
 	var args3 []interface{}
 	args3 = append(args3, 1)
+	var args4 []interface{}
+	args4 = append(args4, "GATE")
 	var tests = []struct {
 		name    string
 		addr    string
@@ -39,12 +41,16 @@ func TestGoodMessages(t *testing.T) {
 			[]byte("/ch/01/eq/1/q\x00\x00\x00,f\x00\x00\x3e\xed\xfa\x44"),
 		},
 		{
-			"ch1 gate mode", "/ch/01/gate/mode", "i", args3,
+			"ch1 gate int", "/ch/01/gate/mode", "i", args3,
 			[]byte("/ch/01/gate/mode\x00\x00\x00\x00,i\x00\x00\x00\x00\x00\x01"),
 		},
 		{
-			"ch2 gate mode", "/ch/02/gate/mode", "i", args3,
+			"ch2 gate int", "/ch/02/gate/mode", "i", args3,
 			[]byte("/ch/02/gate/mode\x00\x00\x00\x00,i\x00\x00\x00\x00\x00\x01"),
+		},
+		{
+			"ch1 gate str", "/ch/01/gate/mode", "s", args4,
+			[]byte("/ch/01/gate/mode\x00\x00\x00\x00,s\x00\x00GATE\x00\x00\x00\x00"),
 		},
 	}
 	for _, test := range tests {
