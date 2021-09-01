@@ -179,3 +179,38 @@ func TestSetChannelIcon(t *testing.T) {
 		})
 	}
 }
+
+func TestSetChannelColor(t *testing.T) {
+	var tests = []struct {
+		channel     int
+		color       Color
+		want        string
+		expectError bool
+	}{
+		{0, RedText, "/ch/00/config/color\x00,i\x00\x00\x00\x00\x00\x01", true},
+		{1, RedText, "/ch/01/config/color\x00,i\x00\x00\x00\x00\x00\x01", false},
+		{32, BlueBackground, "/ch/32/config/color\x00,i\x00\x00\x00\x00\x00\x0c", false},
+		{33, RedText, "/ch/33/config/color\x00,i\x00\x00\x00\x00\x00\x01", true},
+	}
+	for _, test := range tests {
+		name := fmt.Sprintf("ch%02d_%s", test.channel, test.color)
+		t.Run(name, func(t *testing.T) {
+			var b bytes.Buffer
+			mixer := NewMixer(&b)
+			err := mixer.SetChannelColor(test.channel, test.color)
+			if test.expectError {
+				if err == nil {
+					t.Errorf("expected error setting color for channel %d", test.channel)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("error setting color for channel %d: %s", test.channel, err)
+				}
+				got := b.String()
+				if got != test.want {
+					t.Errorf("\t got = %x\n\t\t\twant = %x", got, test.want)
+				}
+			}
+		})
+	}
+}

@@ -71,6 +71,15 @@ func (m Mixer) NameChannel(ch int, name string) error {
 	return m.WriteMessage(addr, "s", name)
 }
 
+// SetChannelColor sets the color for the given channel.
+func (m Mixer) SetChannelColor(ch int, color Color) error {
+	if !validChannelRange(ch) {
+		return fmt.Errorf("channel %d out of range 1-32", ch)
+	}
+	addr := fmt.Sprintf("/ch/%02d/config/color", ch)
+	return m.WriteMessage(addr, "i", int(color))
+}
+
 // SetChannelIcon sets the icon for the given channel.
 func (m Mixer) SetChannelIcon(ch int, icon Icon) error {
 	if !validChannelRange(ch) {

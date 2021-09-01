@@ -11,7 +11,7 @@ type Icon int
 // Enum for X32 icons.
 const (
 	EmptyIcon            Icon = 1
-	BassKickDrum              = 2
+	KickDrum                  = 2
 	BassDrum                  = 3
 	SticksAboveSnareDrum      = 4
 	SnareDrumAboveSticks      = 5
@@ -68,7 +68,7 @@ func (icon Icon) String() string {
 
 var iconDescription = map[Icon]string{
 	EmptyIcon:            "empty",
-	BassKickDrum:         "bass kick drum",
+	KickDrum:             "kick drum",
 	BassDrum:             "bass drum",
 	SticksAboveSnareDrum: "sticks above snare drum",
 	SnareDrumAboveSticks: "snare drum above sticks",
@@ -116,4 +116,51 @@ var iconDescription = map[Icon]string{
 	InEarMic:             "in-ear microphone",
 	Laptop:               "laptop",
 	SmileyFace:           "smiley face",
+}
+
+// Color provudes an enumeration for the avialable colors.
+type Color int
+
+// Enum for X32 colors.
+const (
+	Off               Color = 0
+	RedText                 = 1
+	GreenText               = 2
+	YellowText              = 3
+	BlueText                = 4
+	MagentaText             = 5
+	CyanText                = 6
+	WhiteText               = 7
+	OffBackground           = 8
+	RedBackground           = 9
+	GreenBackground         = 10
+	YellowBackground        = 11
+	BlueBackground          = 12
+	MagentaBackground       = 13
+	CyanBackground          = 14
+	WhiteBackground         = 15
+)
+
+// String implements the Stringer interface for Color.
+func (c Color) String() string {
+	return colorDescription[c]
+}
+
+var colorDescription = map[Color]string{
+	Off:               "off",
+	RedText:           "red text",
+	GreenText:         "green text",
+	YellowText:        "yellow text",
+	BlueText:          "blue text",
+	MagentaText:       "magenta text",
+	CyanText:          "cyan text",
+	WhiteText:         "white text",
+	OffBackground:     "off background",
+	RedBackground:     "red background",
+	GreenBackground:   "green background",
+	YellowBackground:  "yellow background",
+	BlueBackground:    "blue background",
+	MagentaBackground: "magenta background",
+	CyanBackground:    "cyan background",
+	WhiteBackground:   "white background",
 }
