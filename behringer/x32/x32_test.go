@@ -13,23 +13,34 @@ import (
 
 func TestMuteChannel(t *testing.T) {
 	var tests = []struct {
-		channel int
-		want    string
+		channel     int
+		want        string
+		expectError bool
 	}{
-		{1, "/ch/01/mix/on\x00\x00\x00,i\x00\x00\x00\x00\x00\x00"},
-		{2, "/ch/02/mix/on\x00\x00\x00,i\x00\x00\x00\x00\x00\x00"},
+		{0, "/ch/01/mix/on\x00\x00\x00,i\x00\x00\x00\x00\x00\x00", true},
+		{1, "/ch/01/mix/on\x00\x00\x00,i\x00\x00\x00\x00\x00\x00", false},
+		{2, "/ch/02/mix/on\x00\x00\x00,i\x00\x00\x00\x00\x00\x00", false},
+		{32, "/ch/32/mix/on\x00\x00\x00,i\x00\x00\x00\x00\x00\x00", false},
+		{33, "/ch/01/mix/on\x00\x00\x00,i\x00\x00\x00\x00\x00\x00", true},
 	}
 	for _, test := range tests {
 		name := fmt.Sprintf("ch%2d", test.channel)
 		t.Run(name, func(t *testing.T) {
 			var b bytes.Buffer
 			mixer := NewMixer(&b)
-			if err := mixer.MuteChannel(test.channel); err != nil {
-				t.Errorf("error muting channel %d: %s", test.channel, err)
-			}
-			got := b.String()
-			if got != test.want {
-				t.Errorf("\t got = %x\n\t\t\twant = %x", got, test.want)
+			err := mixer.MuteChannel(test.channel)
+			if test.expectError {
+				if err == nil {
+					t.Errorf("expected error muting channel %d", test.channel)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("error muting channel %d: %s", test.channel, err)
+				}
+				got := b.String()
+				if got != test.want {
+					t.Errorf("\t got = %x\n\t\t\twant = %x", got, test.want)
+				}
 			}
 		})
 	}
@@ -38,23 +49,34 @@ func TestMuteChannel(t *testing.T) {
 
 func TestUnmuteChannel(t *testing.T) {
 	var tests = []struct {
-		channel int
-		want    string
+		channel     int
+		want        string
+		expectError bool
 	}{
-		{1, "/ch/01/mix/on\x00\x00\x00,i\x00\x00\x00\x00\x00\x01"},
-		{2, "/ch/02/mix/on\x00\x00\x00,i\x00\x00\x00\x00\x00\x01"},
+		{0, "/ch/01/mix/on\x00\x00\x00,i\x00\x00\x00\x00\x00\x01", true},
+		{1, "/ch/01/mix/on\x00\x00\x00,i\x00\x00\x00\x00\x00\x01", false},
+		{2, "/ch/02/mix/on\x00\x00\x00,i\x00\x00\x00\x00\x00\x01", false},
+		{32, "/ch/32/mix/on\x00\x00\x00,i\x00\x00\x00\x00\x00\x01", false},
+		{33, "/ch/01/mix/on\x00\x00\x00,i\x00\x00\x00\x00\x00\x01", true},
 	}
 	for _, test := range tests {
 		name := fmt.Sprintf("ch%2d", test.channel)
 		t.Run(name, func(t *testing.T) {
 			var b bytes.Buffer
 			mixer := NewMixer(&b)
-			if err := mixer.UnmuteChannel(test.channel); err != nil {
-				t.Errorf("error unmuting channel %d: %s", test.channel, err)
-			}
-			got := b.String()
-			if got != test.want {
-				t.Errorf("\t got = %x\n\t\t\twant = %x", got, test.want)
+			err := mixer.UnmuteChannel(test.channel)
+			if test.expectError {
+				if err == nil {
+					t.Errorf("expected error unmuting channel %d", test.channel)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("error unmuting channel %d: %s", test.channel, err)
+				}
+				got := b.String()
+				if got != test.want {
+					t.Errorf("\t got = %x\n\t\t\twant = %x", got, test.want)
+				}
 			}
 		})
 	}

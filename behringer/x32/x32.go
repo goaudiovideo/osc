@@ -56,6 +56,9 @@ func (m Mixer) UnmuteMain() error {
 
 // MuteChannel mutes the given channel.
 func (m Mixer) MuteChannel(ch int) error {
+	if !validChannelRange(ch) {
+		return fmt.Errorf("channel %d out of range 1-32", ch)
+	}
 	addr := fmt.Sprintf("/ch/%02d/mix/on", ch)
 	msg, err := osc.Message(addr, "i", 0)
 	if err != nil {
@@ -67,6 +70,9 @@ func (m Mixer) MuteChannel(ch int) error {
 
 // UnmuteChannel unmutes the given channel.
 func (m Mixer) UnmuteChannel(ch int) error {
+	if !validChannelRange(ch) {
+		return fmt.Errorf("channel %d out of range 1-32", ch)
+	}
 	addr := fmt.Sprintf("/ch/%02d/mix/on", ch)
 	msg, err := osc.Message(addr, "i", 1)
 	if err != nil {
@@ -74,4 +80,8 @@ func (m Mixer) UnmuteChannel(ch int) error {
 	}
 	_, err = m.Write(msg)
 	return err
+}
+
+func validChannelRange(ch int) bool {
+	return ch > 0 && ch < 33
 }
