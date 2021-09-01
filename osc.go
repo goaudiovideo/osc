@@ -31,6 +31,18 @@ func Message(addr, typeTag string, args ...interface{}) ([]byte, error) {
 		case string:
 			msg = append(msg, arg...)
 			msg = append(msg, 0)
+		case int:
+			i, err := encodeInt(arg)
+			if err != nil {
+				return nil, err
+			}
+			msg = append(msg, i...)
+		case float64:
+			b, err := encodeFloat64(arg)
+			if err != nil {
+				return nil, err
+			}
+			msg = append(msg, b...)
 		case float32:
 			b, err := encodeFloat32(arg)
 			if err != nil {
@@ -65,6 +77,22 @@ func numZeroBytes(l int) int {
 func encodeFloat32(f float32) ([]byte, error) {
 	var buf bytes.Buffer
 	if err := binary.Write(&buf, binary.BigEndian, f); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// encodeFloat64 converts a float32 number into the big-endian binary byte
+// slice required by an OSC message.
+func encodeFloat64(f float64) ([]byte, error) {
+	return encodeFloat32(float32(f))
+}
+
+// encodeInt converts an integer number into the big-endian binary byte slice
+// required by an OSC message.
+func encodeInt(i int) ([]byte, error) {
+	var buf bytes.Buffer
+	if err := binary.Write(&buf, binary.BigEndian, int32(i)); err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil
