@@ -80,7 +80,6 @@ func TestUnmuteChannel(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestMuteMain(t *testing.T) {
@@ -107,4 +106,41 @@ func TestUnmuteMain(t *testing.T) {
 	if got != want {
 		t.Errorf("\t got = %x\n\t\twant = %x", got, want)
 	}
+}
+
+func TestNameChannel(t *testing.T) {
+	var tests = []struct {
+		channel     int
+		name        string
+		want        string
+		expectError bool
+	}{
+		{0, "foo", "/ch/00/config/name\x00\x00,s\x00\x00foo\x00", true},
+		{1, "foo", "/ch/01/config/name\x00\x00,s\x00\x00foo\x00", false},
+		{1, "badTooLongName", "/ch/01/config/name\x00\x00,s\x00\x00foo\x00", true},
+		{32, "foo", "/ch/32/config/name\x00\x00,s\x00\x00foo\x00", false},
+		{33, "foo", "/ch/33/config/name\x00\x00,s\x00\x00foo\x00", true},
+	}
+	for _, test := range tests {
+		name := fmt.Sprintf("ch%02d_%s", test.channel, test.name)
+		t.Run(name, func(t *testing.T) {
+			var b bytes.Buffer
+			mixer := NewMixer(&b)
+			err := mixer.NameChannel(test.channel, test.name)
+			if test.expectError {
+				if err == nil {
+					t.Errorf("expected error naming channel %d", test.channel)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("error naming channel %d: %s", test.channel, err)
+				}
+				got := b.String()
+				if got != test.want {
+					t.Errorf("\t got = %x\n\t\t\twant = %x", got, test.want)
+				}
+			}
+		})
+	}
+
 }
