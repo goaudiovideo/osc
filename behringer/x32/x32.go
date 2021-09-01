@@ -34,13 +34,9 @@ func (m Mixer) Write(p []byte) (int, error) {
 	return m.w.Write(p)
 }
 
-// MuteChannel mutes the given channel.
-func (m Mixer) MuteChannel(ch int) error {
-	if !validChannelRange(ch) {
-		return fmt.Errorf("channel %d out of range 1-32", ch)
-	}
-	addr := fmt.Sprintf("/ch/%02d/mix/on", ch)
-	msg, err := osc.Message(addr, "i", 0)
+// WriteMessage writes the OSC message.
+func (m Mixer) WriteMessage(addr, typeTag string, args ...interface{}) error {
+	msg, err := osc.Message(addr, typeTag, args...)
 	if err != nil {
 		return err
 	}
@@ -48,14 +44,18 @@ func (m Mixer) MuteChannel(ch int) error {
 	return err
 }
 
+// MuteChannel mutes the given channel.
+func (m Mixer) MuteChannel(ch int) error {
+	if !validChannelRange(ch) {
+		return fmt.Errorf("channel %d out of range 1-32", ch)
+	}
+	addr := fmt.Sprintf("/ch/%02d/mix/on", ch)
+	return m.WriteMessage(addr, "i", 0)
+}
+
 // MuteMain mutes the main channel.
 func (m Mixer) MuteMain() error {
-	msg, err := osc.Message("/main/st/mix/on", "i", 0)
-	if err != nil {
-		return err
-	}
-	_, err = m.Write(msg)
-	return err
+	return m.WriteMessage("/main/st/mix/on", "i", 0)
 }
 
 // NameChannel sets the name of the given channel. The name can only be up to
@@ -68,12 +68,7 @@ func (m Mixer) NameChannel(ch int, name string) error {
 		return fmt.Errorf("channel name %s too long (12 char limit)", name)
 	}
 	addr := fmt.Sprintf("/ch/%02d/config/name", ch)
-	msg, err := osc.Message(addr, "s", name)
-	if err != nil {
-		return err
-	}
-	_, err = m.Write(msg)
-	return err
+	return m.WriteMessage(addr, "s", name)
 }
 
 // UnmuteChannel unmutes the given channel.
@@ -82,22 +77,12 @@ func (m Mixer) UnmuteChannel(ch int) error {
 		return fmt.Errorf("channel %d out of range 1-32", ch)
 	}
 	addr := fmt.Sprintf("/ch/%02d/mix/on", ch)
-	msg, err := osc.Message(addr, "i", 1)
-	if err != nil {
-		return err
-	}
-	_, err = m.Write(msg)
-	return err
+	return m.WriteMessage(addr, "i", 1)
 }
 
 // UnmuteMain unmutes the main channel.
 func (m Mixer) UnmuteMain() error {
-	msg, err := osc.Message("/main/st/mix/on", "i", 1)
-	if err != nil {
-		return err
-	}
-	_, err = m.Write(msg)
-	return err
+	return m.WriteMessage("/main/st/mix/on", "i", 1)
 }
 
 func validChannelRange(ch int) bool {
