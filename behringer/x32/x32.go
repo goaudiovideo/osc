@@ -3,6 +3,10 @@
 // Use of this source code is governed by a MIT-style license that
 // can be found in the LICENSE file for the project.
 
+/*
+Package x32 provides remote control support for the Behringer X32 Digital Mixer
+using Open Sound Control remote protocol.
+*/
 package x32
 
 import (
@@ -32,7 +36,7 @@ func (m Mixer) Write(p []byte) (int, error) {
 
 // MuteChannel mutes the given channel.
 func (m Mixer) MuteChannel(ch int) error {
-	addr := fmt.Sprintf("/ch/%2d/mix/on", ch)
+	addr := fmt.Sprintf("/ch/%02d/mix/on", ch)
 	msg, err := osc.Message(addr, "i", 0)
 	if err != nil {
 		return err
@@ -43,7 +47,7 @@ func (m Mixer) MuteChannel(ch int) error {
 
 // UnmuteChannel unmutes the given channel.
 func (m Mixer) UnmuteChannel(ch int) error {
-	addr := fmt.Sprintf("/ch/%2d/mix/on", ch)
+	addr := fmt.Sprintf("/ch/%02d/mix/on", ch)
 	msg, err := osc.Message(addr, "i", 1)
 	if err != nil {
 		return err
