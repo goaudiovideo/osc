@@ -5,7 +5,7 @@
 
 /*
 Package x32 provides remote control support for the Behringer X32 Digital Mixer
-using Open Sound Control remote protocol.
+using Open Sound Control (OSC) remote protocol.
 */
 package x32
 
@@ -19,19 +19,19 @@ import (
 // Mixer models a Behringer X32 mixer that can be controlled using Open Sound
 // Control (OSC).
 type Mixer struct {
-	w io.Writer
+	rw io.ReadWriter
 }
 
 // NewMixer creates a new Mixer using the given writer.
-func NewMixer(w io.Writer) Mixer {
+func NewMixer(rw io.ReadWriter) Mixer {
 	return Mixer{
-		w: w,
+		rw: rw,
 	}
 }
 
 // Write implements the Writer interface for Mixer.
 func (m Mixer) Write(p []byte) (int, error) {
-	return m.w.Write(p)
+	return m.rw.Write(p)
 }
 
 // WriteMessage writes the OSC message.

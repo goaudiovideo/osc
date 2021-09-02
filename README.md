@@ -1,5 +1,5 @@
 # osc
-Go Open Sound Control (OSC) Library
+Go-based Open Sound Control (OSC) Library
 
 [![GoDoc][godoc badge]][godoc link]
 [![Go Report Card][report badge]][report card]
@@ -8,8 +8,15 @@ Go Open Sound Control (OSC) Library
 
 ## Overview
 
-[osc][] provides a Go-based Open Sound Control (OSC) library.
+[osc][] provides a Go-based [Open Sound Control (OSC)][osc.org] library. In
+addition to being able to create and send user specified OSC messages, [osc][]
+provides a Go library for specific audio equipment.
 
+### Supported Equipment
+
+[osc][] (partially) supports the following equipment:
+
+- Behringer X32 Digital Mixer
 
 ## Contributing
 
@@ -40,6 +47,7 @@ $ make cover
 [LICENSE][] file for more information.
 
 [osc]: https://github.com/goaudiovideo/osc
+[osc.org]: http://opensoundcontrol.org/
 [godoc badge]: https://godoc.org/github.com/goaudiovideo/osc?status.svg
 [godoc link]: https://godoc.org/github.com/goaudiovideo/osc
 [LICENSE]: https://github.com/goaudiovideo/osc/blob/master/LICENSE
