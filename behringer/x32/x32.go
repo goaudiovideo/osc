@@ -10,11 +10,20 @@ using Open Sound Control (OSC) remote protocol.
 package x32
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 
 	"github.com/goaudiovideo/osc"
 )
+
+// Info models the info received back from the mixer.
+type Info struct {
+	ServerVersion  string
+	ServerName     string
+	ConsoleModel   string
+	ConsoleVersion string
+}
 
 // Mixer models a Behringer X32 mixer that can be controlled using Open Sound
 // Control (OSC).
@@ -42,6 +51,23 @@ func (m Mixer) WriteMessage(addr, typeTag string, args ...interface{}) error {
 	}
 	_, err = m.Write(msg)
 	return err
+}
+
+// Info returns information about the X32 Mixer.
+// FIXME(mdr): Not working! Need to create functions to handle reading OSC
+// messages.
+func (m Mixer) Info() (Info, error) {
+	info := Info{}
+	err := m.WriteMessage("/info", "s")
+	if err != nil {
+		return info, err
+	}
+	p := make([]byte, 128)
+	_, err = bufio.NewReader(m.rw).Read(p)
+	if err != nil {
+		return info, err
+	}
+	return info, nil
 }
 
 // MuteChannel mutes the given channel.
@@ -105,4 +131,42 @@ func (m Mixer) UnmuteMain() error {
 
 func validChannelRange(ch int) bool {
 	return ch > 0 && ch < 33
+}
+
+// dbLevelToDecimal converts a dB level from -90.0 dB to +10.0 dB to a decimal
+// value in the range of 0.0 to 1.0.
+func dbLevelToDecimal(db float64) float64 {
+	switch {
+	case db < -90.0:
+		return 0.0
+	case db < -60.0:
+		return (db + 90.0) / 480.0
+	case db < -30.0:
+		return (db + 70.0) / 160.0
+	case db < -10.0:
+		return (db + 50.0) / 80.0
+	case db <= 10.0:
+		return (db + 30.0) / 40.0
+	default:
+		return 1.0
+	}
+}
+
+// decimalToDBLevel converts a decimal value in the range of 0.0 to 1.0 to a dB
+// level from -90.0 dB to +10.0.
+func decimalToDBLevel(f float64) float64 {
+	switch {
+	case f > 1.0:
+		return 10.0
+	case f >= 0.5:
+		return f*40.0 - 30.0
+	case f >= 0.25:
+		return f*80.0 - 50.0
+	case f >= 0.0625:
+		return f*160.0 - 70.0
+	case f >= 0.0:
+		return f*480.0 - 90.
+	default:
+		return -90.0
+	}
 }

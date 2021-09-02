@@ -214,3 +214,57 @@ func TestSetChannelColor(t *testing.T) {
 		})
 	}
 }
+
+func TestConvertDBToDecimal(t *testing.T) {
+	var tests = []struct {
+		given float64
+		want  float64
+	}{
+		{-150.0, 0.0},
+		{-90.0, 0.0},
+		{-78.0, 0.025},
+		{-60.0, 0.0625},
+		{-42.0, 0.175},
+		{-30.0, 0.25},
+		{-20.0, 0.375},
+		{-10.0, 0.50},
+		{0.0, 0.75},
+		{10.0, 1.0},
+		{20.0, 1.0},
+	}
+	for _, test := range tests {
+		name := fmt.Sprintf("%.3fdB", test.given)
+		t.Run(name, func(t *testing.T) {
+			if got := dbLevelToDecimal(test.given); got != test.want {
+				t.Errorf("\t got = %.4f\n\t\t\twant = %.4f", got, test.want)
+			}
+		})
+	}
+}
+
+func TestConvertDecimalToDB(t *testing.T) {
+	var tests = []struct {
+		given float64
+		want  float64
+	}{
+		{-10.00, -90.0},
+		{0.0000, -90.0},
+		{0.0250, -78.0},
+		{0.0625, -60.0},
+		{0.1750, -42.0},
+		{0.2500, -30.0},
+		{0.3750, -20.0},
+		{0.5000, -10.0},
+		{0.7500, +0.00},
+		{1.0000, +10.0},
+		{1.1000, +10.0},
+	}
+	for _, test := range tests {
+		name := fmt.Sprintf("%.3fdB", test.given)
+		t.Run(name, func(t *testing.T) {
+			if got := decimalToDBLevel(test.given); got != test.want {
+				t.Errorf("\t got = %.4f\n\t\t\twant = %.4f", got, test.want)
+			}
+		})
+	}
+}
